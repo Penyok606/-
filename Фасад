@@ -1,0 +1,154 @@
+Фасад
+Визначає певним підсистемам інтерфейс, отже знає кому адресувати запити;
+делегує запити клієнтів потрібним об'єктам підсистеми;
+створює нові методи, котрі об'єднують виклики об'єктів системи і\або додають свою логіку;
+приховує підсистеми;
+зменшує кількість параметрів методів, шляхом попередньої підстановки визначених значень.
+Підсистема
+реалізує функціонал, закритий та не видимий для зовнішніх компонентів
+виконує роботу, запитану клієнтом через фасад.
+не зберігає посилання на фасад — це означає що одна підсистема може мати довільну кількість фасадів.
+Клієнт
+здійснює запити фасаду;
+не знає про існування підсистем.
+Переваги та недоліки
+Переваги
+Приховує реалізацію підсистеми від клієнтів, що полегшує використання підсистеми
+Сприяє слабкій взаємодії між підсистемою та її клієнтами. Це дозволяє змінити класи, які включають підсистему, не впливаючи на клієнтів.
+Зменшує компіляційні залежностей у великих програмних системах
+Спрощує системи перенесення на інші платформи, оскільки менш імовірно, що для побудови однієї підсистеми потрібно побудувати всі інші
+Недоліки
+Не заважає сучасним клієнтам отримувати доступ до базових класів
+Фасад не додає жодної функції, він просто спрощує інтерфейси
+
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+// Абстрактний музикант - не є обов'язковою частиною патерну, введений для спрощення коду
+class Musician
+{
+private:
+	string name;
+public:
+	Musician(string name)
+	{
+		this->name = name;
+	}
+	virtual ~Musician() {}
+protected:
+	void output(string text)
+	{
+		cout << this->name << " " << text << "." << endl;
+	}
+};
+// Конкретні музиканти
+struct Vocalist : public Musician
+{
+	Vocalist(string name) : Musician(name) {}
+	void singCouplet(string coupletNumber)
+	{
+		string text = "заспівав куплет №" + coupletNumber;
+		output(text);
+	}
+	void singChorus()
+	{
+		output("заспівав приспів");
+	}
+};
+struct Guitarist : public Musician
+{
+	Guitarist(string name) : Musician(name) {}
+	void playCoolOpening()
+	{
+		output("починає з крутого виступу");
+	}
+	void playCoolRiffs()
+	{
+		output("грає круті рифи");
+	}
+	void playAnotherCoolRiffs()
+	{
+		output("грає інші круті рифи");
+	}
+	void playIncrediblyCoolSolo()
+	{
+		output("лабає неймовірно круте соло");
+	}
+	void playFinalAccord()
+	{
+		output("закінчує пісню супер акордом");
+	}
+};
+struct Bassist : public Musician
+{
+	Bassist(string name) : Musician(name) {}
+	void followTheDrums()
+	{
+		output("слідкує за барабанами");
+	}
+	void changeRhythm(string type)
+	{
+		string text = "перейшов на ритм ";
+		output(text + type);
+	}
+	void stopPlaying()
+	{
+		output("закінчує грати");
+	}
+};
+struct Drummer : public Musician
+{
+	Drummer(string name) : Musician(name) {}
+	void startPlaying()
+	{
+		output("починає грати");
+	}
+	void stopPlaying()
+	{
+		output("закінчує грати");
+	}
+};
+// Фасад — в цьому випадку, рок-група
+class BlackSabbath
+{
+private:
+	Vocalist* vocalist;
+	Guitarist* guitarist;
+	Bassist* bassist;
+	Drummer* drummer;
+public:
+	BlackSabbath()
+	{
+		vocalist = new Vocalist("Оззі Осборн");
+		guitarist = new Guitarist("Тоні Айоммі");
+		bassist = new Bassist("Гізер Батлер");
+		drummer = new Drummer("Біл Уорд");
+	}
+	void playCoolSong()
+	{
+		guitarist->playCoolOpening();
+		drummer->startPlaying();
+		bassist->followTheDrums();
+		guitarist->playCoolRiffs();
+		vocalist->singCouplet("1");
+		bassist->changeRhythm("приспів");
+		guitarist->playAnotherCoolRiffs();
+		vocalist->singChorus();
+		bassist->changeRhythm("куплет");
+		guitarist->playCoolRiffs();
+		vocalist->singCouplet("2");
+		bassist->changeRhythm("приспів");
+		guitarist->playAnotherCoolRiffs();
+		vocalist->singChorus();
+		bassist->changeRhythm("куплет");
+		guitarist->playIncrediblyCoolSolo();
+		guitarist->playCoolRiffs();
+	}
+};
+void main()
+{
+	BlackSabbath* band = new BlackSabbath();
+	band->playCoolSong();
+}
